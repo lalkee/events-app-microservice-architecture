@@ -1,6 +1,8 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/lalkee/mikroserviska-arh-is-backend.git
+	branch = main
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/lalkee/mikroserviska-arh-is-frontend.git
+	branch = main
