@@ -1,0 +1,80 @@
+services:
+  # MySQL for Events Service
+  events-db:
+    image: mysql:8.4
+    environment:
+      - MYSQL_DATABASE=eventdb
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # MySQL for Speakers Service
+  speakers-db:
+    image: mysql:8.4
+    environment:
+      - MYSQL_DATABASE=speakersdb
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # RabbitMQ with STOMP plugin enabled
+  rabbitmq:
+      image: rabbitmq:3-management
+      ports:
+        - "5672:5672"
+        - "15672:15672"
+        - "15674:15674"
+      command: >
+        bash -c "rabbitmq-plugins enable --offline rabbitmq_web_stomp && rabbitmq-server"
+      healthcheck:
+        test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+        interval: 10s
+        timeout: 5s
+        retries: 10
+        start_period: 10s
+
+  events-service:
+    build:
+      context: ./events-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://events-db:3306/eventdb?createDatabaseIfNotExist=true&connectTimeout=5000&socketTimeout=30000
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      events-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  speakers-service:
+    build:
+      context: ./speakers-service
+    environment:
+      - DB_HOST=speakers-db
+      - DB_PORT=3306
+      - RMQ_HOST=rabbitmq
+    depends_on:
+      speakers-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  frontend-service:
+    build:
+      context: ./frontend-service
+    ports:
+      - "8080:80"
+    depends_on:
+      - events-service
+      - speakers-service

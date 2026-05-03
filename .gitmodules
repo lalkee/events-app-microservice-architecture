@@ -1,11 +1,12 @@
 [submodule "backend"]
-	path = events-service
-	url = https://github.com/lalkee/mikroserviska-arh-is-backend.git
-	branch = main
+    path = events-service
+    url = https://github.com/lalkee/mikroserviska-arh-is-backend.git
+    branch = main
 [submodule "frontend"]
-	path = frontend-service
-	url = https://github.com/lalkee/mikroserviska-arh-is-frontend.git
-	branch = main
+    path = frontend-service
+    url = https://github.com/lalkee/mikroserviska-arh-is-frontend.git
+    branch = main
 [submodule "speakers-service"]
-	path = speakers-service
-	url = https://github.com/lalkee/mikroservisna-arh-is-speakers.git
+    path = speakers-service
+    url = https://github.com/lalkee/mikroservisna-arh-is-speakers.git
+    branch = main
